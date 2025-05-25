@@ -3,7 +3,7 @@ services:
     name: snack66-backend
     env: node
     plan: free
-    buildCommand: npm install npm run build
+    buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: DATABASE_URL
