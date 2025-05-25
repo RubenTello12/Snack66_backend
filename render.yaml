@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: snack66-backend
+    env: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        value: mongodb+srv://root:7pZKfSoAOvC8M9sn@cluster0.qa9jjt7.mongodb.net/snack66_mern
+      - key: PORT
+        value: 10000
