@@ -37,7 +37,7 @@ export const createCategory = async (req: Request & { file?: Express.Multer.File
        return
     }
 
-    const imageUrl = `http://localhost:4000/uploads/${image}`;
+    const imageUrl = `https://snack66-backend.onrender.com/uploads/${image}`;
 
     const newCategory = await Category.create({ name, imageUrl });
 
