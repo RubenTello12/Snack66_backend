@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import Product from "../models/Product";
 import InventoryItem from "../models/InventoryItem";
+import Order from "../models/Order";
 
 export class ProductController {
   static getAll = async (req: Request, res: Response): Promise<void> => {
@@ -105,6 +106,19 @@ export class ProductController {
   static delete = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
+
+      const activeOrders = await Order.find({
+        status: "en curso",
+        "products.product": id
+      });
+
+      if (activeOrders.length > 0) {
+        res.status(400).json({
+          message: "Este producto está siendo utilizado en órdenes en curso y no puede ser eliminado."
+        });
+        return;
+      }
+
       const deletedProduct = await Product.findByIdAndDelete(id);
 
       if (!deletedProduct) {
@@ -113,6 +127,7 @@ export class ProductController {
       }
 
       res.json({ message: "Producto eliminado correctamente" });
+
     } catch (error: any) {
       console.error("Error al eliminar producto:", error.message);
       res.status(500).json({ message: "Error al eliminar producto" });

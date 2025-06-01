@@ -14,6 +14,8 @@ export type OrderType = Document & {
   products: OrderedProduct[];
   total: number;
   status: 'en curso' | 'pago pendiente' | 'pagado' | 'cancelado';
+  notas: string;
+  paymethod?: 'En efectivo' | 'Tarjeta' | 'Transferencia' | 'Cortesía';
   timeCreated?: Date;
 };
 
@@ -52,7 +54,7 @@ const OrderSchema: Schema = new Schema({
           name: { type: String },
           price: { type: Number }
         }
-      ]
+      ],
     }
   ],
   total: {
@@ -64,6 +66,16 @@ const OrderSchema: Schema = new Schema({
     type: String,
     enum: ['en curso', 'pago pendiente', 'pagado', 'cancelado'],
     default: 'en curso'
+  },
+  notas: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  paymethod: {
+    type: String,
+    enum: ['En efectivo', 'Tarjeta', 'Transferencia', 'Cortesía'],
+    default: 'Cortesía'
   },
   timeCreated: {
     type: Date,

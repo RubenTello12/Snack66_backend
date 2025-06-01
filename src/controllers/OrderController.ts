@@ -43,9 +43,9 @@ export class OrderController {
   };
 
 
-static createOrder = async (req: Request, res: Response): Promise<void> => {
+static createOrder = async (req: Request, res: Response): Promise<void> => { 
   try {
-    const { client, table, type, products } = req.body;
+    const { client, table, type, products, notas, paymethod } = req.body;
 
     for (const ordered of products) {
       const product = await Product.findById(ordered.product);
@@ -112,6 +112,8 @@ static createOrder = async (req: Request, res: Response): Promise<void> => {
       type,
       products,
       total, 
+      notas,
+      paymethod
     });
 
     res.status(201).json(newOrder);
@@ -124,7 +126,7 @@ static createOrder = async (req: Request, res: Response): Promise<void> => {
   static update = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const { client, table, type, products, status } = req.body;
+      const { client, table, type, products, status, notas, paymethod } = req.body;
 
       const existingOrder = await Order.findById(id);
       if (!existingOrder) {
@@ -203,7 +205,7 @@ static createOrder = async (req: Request, res: Response): Promise<void> => {
 
       const updatedOrder = await Order.findByIdAndUpdate(
         id,
-        { client, table, type, products, status },
+        { client, table, type, products, status, notas, paymethod },
         { new: true }
       );
 
@@ -255,14 +257,21 @@ static createOrder = async (req: Request, res: Response): Promise<void> => {
 
   static updateStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, paymethod } = req.body;
 
     if (!['en curso', 'pago pendiente', 'pagado'].includes(status)) {
-       res.status(400).json({ message: "Estado inválido" });
-       return
+      res.status(400).json({ message: "Estado inválido" });
+      return;
     }
 
-    const updated = await Order.findByIdAndUpdate(id, { status }, { new: true });
+    const updateFields: any = { status };
+
+    if (paymethod) {
+      updateFields.paymethod = paymethod;
+    }
+
+    const updated = await Order.findByIdAndUpdate(id, updateFields, { new: true });
+
     res.json(updated);
   };
 
@@ -293,6 +302,30 @@ static createOrder = async (req: Request, res: Response): Promise<void> => {
     } catch (error) {
       console.error("Error al obtener órdenes pagadas:", error);
       res.status(500).json({ message: "Error al obtener órdenes pagadas" });
+    }
+  };
+
+  static updatePaymentMethod = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { paymethod } = req.body;
+
+      if (!["efectivo", "tarjeta", "transferencia", "cortesia"].includes(paymethod)) {
+        res.status(400).json({ message: "Método de pago inválido" });
+        return;
+      }
+
+      const updated = await Order.findByIdAndUpdate(id, { paymethod }, { new: true });
+
+      if (!updated) {
+        res.status(404).json({ message: "Orden no encontrada" });
+        return;
+      }
+
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error al actualizar forma de pago:", error.message);
+      res.status(500).json({ message: "Error al actualizar forma de pago" });
     }
   };
 }
