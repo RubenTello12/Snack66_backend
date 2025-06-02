@@ -51,7 +51,7 @@ const createCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
             res.status(400).json({ message: "Faltan campos requeridos" });
             return;
         }
-        const imageUrl = `http://localhost:4000/uploads/${image}`;
+        const imageUrl = `https://snack66-backend.onrender.com/uploads/${image}`;
         const newCategory = yield Category_1.default.create({ name, imageUrl });
         res.status(201).json(newCategory);
     }
